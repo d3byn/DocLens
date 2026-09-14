@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Icon from "@/components/icon";
 
 type Source = {
   text: string;
@@ -9,6 +10,16 @@ type Source = {
 };
 
 type Status = "idle" | "loading" | "success" | "error";
+
+function getErrorMessage(err: unknown) {
+  return err instanceof Error ? err.message : "Something went wrong.";
+}
+
+// Shared styles
+const card = "rounded-3xl bg-white/50 p-6 ring-1 ring-[#413333]/10 sm:p-8";
+const label = "text-xs font-medium uppercase tracking-widest text-[#413333]/50";
+const button =
+  "flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-[#F5EBDD] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40";
 
 export default function Home() {
   // --- Upload state ---
@@ -47,8 +58,8 @@ export default function Home() {
       setChunkCount(data.chunkCount);
       setUploadMessage(`Processed "${file.name}" into ${data.chunkCount} chunks.`);
       setUploadStatus("success");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       setUploadStatus("error");
     }
   }
@@ -77,8 +88,8 @@ export default function Home() {
       setAnswer(data.answer);
       setSources(data.sources || []);
       setAskStatus("success");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(getErrorMessage(err));
       setAskStatus("error");
     }
   }
@@ -88,115 +99,127 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* STEP 1 — Upload */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-medium">
-            1
-          </span>
-          <h2 className="font-medium">Upload a document</h2>
-          <span className="text-xs text-gray-400 ml-auto">PDF or TXT, max 10MB</span>
-        </div>
+    <div className="space-y-10">
+      {/* Intro */}
+      <div className="space-y-4">
+        <h1 className="font-(family-name:--font-serif) text-4xl leading-tight sm:text-5xl">
+          Ask your documents,
+          <br />
+          <span className="italic text-[#F2765E]">get grounded answers.</span>
+        </h1>
+        <p className="max-w-md leading-7 text-[#413333]/70">
+          Upload a PDF or text file and ask anything. Every answer comes with
+          the passages it was drawn from.
+        </p>
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <label className="flex-1 border border-dashed border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-600 cursor-pointer hover:bg-gray-50 transition">
-            <input
-              type="file"
-              accept=".pdf,.txt"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="hidden"
-            />
-            {file ? file.name : "Click to choose a file..."}
-          </label>
+      <div className={`${card} space-y-8`}>
+        {/* STEP 1 — Upload */}
+        <section className="space-y-3">
+          <p className={label}>01 · Upload</p>
 
-          <button
-            onClick={handleUpload}
-            disabled={!file || uploadStatus === "loading"}
-            className="bg-black text-white text-sm font-medium px-5 py-3 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition"
-          >
-            {uploadStatus === "loading" ? "Processing..." : "Upload"}
-          </button>
-        </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <label className="flex flex-1 cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-[#413333]/25 px-4 py-3 text-sm transition hover:border-[#F2765E] hover:bg-[#F2765E]/5">
+              <input
+                type="file"
+                accept=".pdf,.txt"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="hidden"
+              />
+              <Icon name="file" className="h-5 w-5 shrink-0 text-[#F2765E]" />
+              <span className={`truncate ${file ? "" : "text-[#413333]/50"}`}>
+                {file ? file.name : "Choose a PDF or TXT (max 10MB)"}
+              </span>
+            </label>
 
-        {uploadMessage && (
-          <p className="text-green-600 text-sm mt-3">✓ {uploadMessage}</p>
-        )}
-      </section>
+            <button
+              type="button"
+              onClick={handleUpload}
+              disabled={!file || uploadStatus === "loading"}
+              className={`${button} bg-[#F2765E]`}
+            >
+              <Icon name="upload" />
+              {uploadStatus === "loading" ? "Processing..." : "Upload"}
+            </button>
+          </div>
 
-      {/* STEP 2 — Ask */}
-      <section
-        className={`bg-white border border-gray-200 rounded-xl p-6 shadow-sm ${!isReady ? "opacity-60" : ""
-          }`}
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-medium">
-            2
-          </span>
-          <h2 className="font-medium">Ask a question</h2>
-          {chunkCount !== null && (
-            <span className="text-xs text-gray-400 ml-auto">
-              Searching {chunkCount} chunks
-            </span>
+          {uploadMessage && (
+            <p className="flex items-center gap-2 text-sm text-[#315B8C]">
+              <Icon name="check" />
+              {uploadMessage}
+            </p>
           )}
-        </div>
+        </section>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={handleAskKeyDown}
-            disabled={!isReady}
-            placeholder={
-              isReady ? "e.g. What is the main conclusion?" : "Upload a document first"
-            }
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-sm disabled:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black/10"
-          />
-          <button
-            onClick={handleAsk}
-            disabled={!isReady || askStatus === "loading"}
-            className="bg-blue-600 text-white text-sm font-medium px-5 py-3 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700 transition"
-          >
-            {askStatus === "loading" ? "Thinking..." : "Ask"}
-          </button>
-        </div>
-      </section>
+        <hr className="border-[#413333]/10" />
+
+        {/* STEP 2 — Ask */}
+        <section className={`space-y-3 transition ${isReady ? "" : "opacity-50"}`}>
+          <p className={label}>
+            02 · Ask{chunkCount !== null && ` · ${chunkCount} chunks`}
+          </p>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={handleAskKeyDown}
+              disabled={!isReady}
+              placeholder={
+                isReady ? "What is the main conclusion?" : "Upload a document first"
+              }
+              className="flex-1 rounded-2xl border border-[#413333]/15 bg-[#F5EBDD]/60 px-4 py-3 text-sm outline-none transition placeholder:text-[#413333]/40 focus:border-[#315B8C] focus:ring-4 focus:ring-[#315B8C]/10 disabled:cursor-not-allowed"
+            />
+            <button
+              type="button"
+              onClick={handleAsk}
+              disabled={!isReady || askStatus === "loading"}
+              className={`${button} bg-[#315B8C]`}
+            >
+              {askStatus === "loading" ? "Thinking..." : "Ask"}
+              <Icon name="arrow" />
+            </button>
+          </div>
+        </section>
+      </div>
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-4">
+        <div className="flex items-center gap-3 rounded-2xl bg-[#F2765E]/10 px-5 py-4 text-sm text-[#413333]">
+          <Icon name="alert" className="h-5 w-5 shrink-0 text-[#F2765E]" />
           {error}
         </div>
       )}
 
       {/* Answer */}
       {answer && (
-        <section className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-2">
-          <h2 className="font-medium">Answer</h2>
-          <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{answer}</p>
+        <section className={`${card} space-y-4`}>
+          <p className={label}>Answer</p>
+          <p className="whitespace-pre-wrap font-(family-name:--font-serif) text-lg leading-8">
+            {answer}
+          </p>
         </section>
       )}
 
       {/* Sources */}
       {sources.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="font-medium text-sm text-gray-500">
-            Sources used ({sources.length})
-          </h2>
-          <div className="space-y-2">
+        <section className="space-y-4">
+          <p className={label}>Sources · {sources.length}</p>
+
+          <div className="space-y-3">
             {sources.map((s, i) => (
               <div
                 key={i}
-                className="bg-white border border-gray-200 rounded-lg p-4 text-sm"
+                className="space-y-2 border-l-2 border-[#315B8C]/30 py-1 pl-4 text-sm"
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-gray-500 text-xs">{s.documentName}</span>
-                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                <div className="flex items-center justify-between gap-3 text-xs">
+                  <span className="truncate text-[#413333]/60">{s.documentName}</span>
+                  <span className="shrink-0 rounded-full bg-[#315B8C]/10 px-2.5 py-0.5 font-medium text-[#315B8C]">
                     {(s.score * 100).toFixed(0)}% match
                   </span>
                 </div>
-                <p className="text-gray-700">{s.text.slice(0, 220)}...</p>
+                <p className="leading-6 text-[#413333]/80">{s.text.slice(0, 220)}...</p>
               </div>
             ))}
           </div>

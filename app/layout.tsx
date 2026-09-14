@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
+import { DM_Sans, Fraunces } from "next/font/google";
+import Icon from "@/components/icon";
 import "./globals.css";
 
+const sans = DM_Sans({ subsets: ["latin"] });
+const serif = Fraunces({ subsets: ["latin"], variable: "--font-serif" });
+
 export const metadata: Metadata = {
-  title: "Document Q&A Assistant",
+  title: "DocLens",
   description: "Ask questions grounded in your uploaded documents",
 };
 
@@ -12,29 +17,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50 min-h-screen text-gray-900 antialiased">
-        <header className="border-b bg-white sticky top-0 z-10">
-          <div className="max-w-3xl mx-auto px-6 py-5 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-black flex items-center justify-center text-white text-sm font-bold">
-              QA
+    <html lang="en" className={serif.variable} style={{ colorScheme: "light" }}>
+      {/* Inline colors override the plain body rule in globals.css */}
+      <body
+        className={`${sans.className} min-h-dvh antialiased`}
+        style={{ backgroundColor: "#F5EBDD", color: "#413333" }}
+      >
+        <div className="mx-auto flex min-h-dvh max-w-2xl flex-col px-5 sm:px-6">
+          <header className="flex items-center gap-2.5 py-6">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F2765E] text-[#F5EBDD]">
+              <Icon name="lens" />
             </div>
-            <div>
-              <h1 className="text-lg font-semibold leading-tight">
-                DocLens
-              </h1>
-              <p className="text-xs text-gray-500">
-                Answers are grounded in your uploaded document — not model memory.
-              </p>
-            </div>
-          </div>
-        </header>
+            <span className="font-(family-name:--font-serif) text-xl font-medium">
+              DocLens
+            </span>
+          </header>
 
-        <main className="max-w-3xl mx-auto px-6 py-10">{children}</main>
-
-        <footer className="max-w-3xl mx-auto px-6 pb-10 text-xs text-gray-400">
-          Retrieval-Augmented Generation demo · Next.js + Gemini
-        </footer>
+          <main className="flex-1 py-8 sm:py-12">{children}</main>
+          <footer className="px-5 py-6">
+            <p className="py-8 text-xs text-center text-[#413333]/50">
+              Made by{' '}
+              <a
+                href="https://github.com/d3byn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#F2765E] hover:text-[#C94F42] transition-colors duration-200 font-medium"
+              >
+                Debayan
+              </a>
+            </p>
+          </footer>
+        </div>
       </body>
     </html>
   );
