@@ -111,3 +111,5 @@ lib/
 - Chunks are kept in server memory. They are lost when the server restarts and aren't shared between server instances.
 - Only PDF and plain-text files are supported.
 - Chunks are embedded one at a time, so large documents can take a while to upload.
+
+*Project made for ShadowFox AI Engineer Virtual Internship*
