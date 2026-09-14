@@ -114,7 +114,7 @@ export default function Home() {
       </div>
 
       <div className={`${card} space-y-8`}>
-        {/* STEP 1 — Upload */}
+        {/* Upload */}
         <section className="space-y-3">
           <p className={label}>01 · Upload</p>
 
@@ -153,7 +153,7 @@ export default function Home() {
 
         <hr className="border-[#413333]/10" />
 
-        {/* STEP 2 — Ask */}
+        {/* Ask */}
         <section className={`space-y-3 transition ${isReady ? "" : "opacity-50"}`}>
           <p className={label}>
             02 · Ask{chunkCount !== null && ` · ${chunkCount} chunks`}
