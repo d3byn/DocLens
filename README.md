@@ -1,4 +1,7 @@
-# DocLens
+<h1>
+  <img src="./app/favicon.ico" alt="DocLens logo" width="24" style="vertical-align: middle; margin-right: 8px;" />
+  DocLens
+</h1>
 
 DocLens lets you upload a document and ask questions about it. Answers come only from the document's content, and each one lists the passages it was based on.
 
